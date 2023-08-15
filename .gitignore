@@ -130,3 +130,9 @@ dmypy.json
 
 # .idea
 .idea
+
+# .vscode
+.vscode/
+
+# директория с media
+backend/foodgram/media/
