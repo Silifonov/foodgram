@@ -57,7 +57,7 @@ class CustomUserViewSet(UserViewSet):
                     {'error': 'Нельзя подписаться на себя'},
                     status=status.HTTP_400_BAD_REQUEST)
             subscribed, created = Subscriptions.objects.get_or_create(
-                                            user=user, author=author)
+                user=user, author=author)
             if not created:
                 return Response(status=status.HTTP_409_CONFLICT)
             serializer = self.get_serializer(author)
@@ -111,7 +111,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         для actions favorite и shopping_cart
         '''
         interesting_recipe, created = Model.objects.get_or_create(
-                                        user=user, recipe=recipe)
+            user=user, recipe=recipe)
         if not created:
             return Response(status=status.HTTP_409_CONFLICT)
         serializer = self.get_serializer(recipe)

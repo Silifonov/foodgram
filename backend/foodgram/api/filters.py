@@ -50,7 +50,7 @@ class IngredientSearchFilter(FilterSet):
     '''
     Фильтр для поиска ингредиентов
     '''
-    name = CharFilter(field_name='name',  method='search_ingredient')
+    name = CharFilter(field_name='name', method='search_ingredient')
 
     class Meta:
         model = Ingredient

@@ -161,7 +161,7 @@ class RecipeWriteSerializer(RecipeSerializer):
                 recipe=recipe,
             )
             for ingredient in ingredients
-            ]
+        ]
         RecipeIngredient.objects.bulk_create(rec_ingr_list)
 
     def create(self, validated_data):
