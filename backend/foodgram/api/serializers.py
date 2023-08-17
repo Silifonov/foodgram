@@ -80,7 +80,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     # Проверка на заполнение поля 'amount' (количество ингредиента)
     def validate_amount(self, value):
         if value <= 0:
-            raise ValidationError('Необходимо указать количество ингредиента')
+            raise ValidationError('Необходимо указать количество ингредиента >0')
         return value
 
 
@@ -116,7 +116,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate(self, data):
         # Проверка на заполнение обязательных полей
         not_empty_checklist = {
-            'image': 'Необходимо выбрать изображение для рецепта',
+        #    'image': 'Необходимо выбрать изображение для рецепта',
             'tags': 'Необходимо выбрать хотя бы 1 тег',
             'ingr_in_rec': 'Необходимо выбрать хотя бы 1 ингредиент'}
         for field in not_empty_checklist:
@@ -155,8 +155,7 @@ class RecipeWriteSerializer(RecipeSerializer):
         '''
         rec_ingr_list = [
             RecipeIngredient(
-                ingredient=Ingredient.objects.get(
-                    id=ingredient['ingredient']['id']),
+                ingredient_id=ingredient['ingredient']['id'],
                 amount=ingredient['amount'],
                 recipe=recipe,
             )
@@ -208,7 +207,8 @@ class SubscribtionsSerializer(UserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         context = {'request': request}
-        recipe_limit = int(request.query_params.get('recipes_limit'))
-        limited_recipes = obj.recipes.all()[:recipe_limit]
+        recipes_limit = request.query_params.get('recipes_limit')
+        limit = int(recipes_limit) if recipes_limit else None
+        limited_recipes = obj.recipes.all()[:limit]
         return RecipeShortSerializer(
             limited_recipes, context=context, many=True).data
