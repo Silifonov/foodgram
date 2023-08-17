@@ -3,6 +3,7 @@ from rest_framework.fields import CurrentUserDefault
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.validators import ValidationError
 from drf_extra_fields.fields import Base64ImageField
+from django.db import transaction
 from django.contrib.auth import get_user_model
 
 from recipes.models import (
@@ -77,12 +78,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         model = RecipeIngredient
         fields = ('id', 'amount', 'name', 'measurement_unit')
 
-    # Проверка на заполнение поля 'amount' (количество ингредиента)
-    def validate_amount(self, value):
-        if value <= 0:
-            raise ValidationError('Необходимо указать количество ингредиента >0')
-        return value
-
 
 class RecipeSerializer(serializers.ModelSerializer):
     '''
@@ -116,7 +111,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate(self, data):
         # Проверка на заполнение обязательных полей
         not_empty_checklist = {
-        #    'image': 'Необходимо выбрать изображение для рецепта',
             'tags': 'Необходимо выбрать хотя бы 1 тег',
             'ingr_in_rec': 'Необходимо выбрать хотя бы 1 ингредиент'}
         for field in not_empty_checklist:
@@ -132,13 +126,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         if len(ingredients_unique_checklist) != (
            len(set(ingredients_unique_checklist))):
             raise ValidationError('Ингредиенты не могут повторятся!')
-
-        # Проверка поля 'cooking_time'
-        if not (0 < data['cooking_time'] <= 1440):
-            raise ValidationError(
-                'Время приготовления должно быть в интревале'
-                '1 минтуа - 1440 минут (1 день)'
-            )
         return data
 
 
@@ -148,6 +135,7 @@ class RecipeWriteSerializer(RecipeSerializer):
     '''
     tags = PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
 
+    @transaction.atomic
     def set_ingredients(self, recipe, ingredients):
         '''
         Создает в БД объекты модели RecipeIngredient,
@@ -163,6 +151,7 @@ class RecipeWriteSerializer(RecipeSerializer):
         ]
         RecipeIngredient.objects.bulk_create(rec_ingr_list)
 
+    @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingr_in_rec')
@@ -171,6 +160,7 @@ class RecipeWriteSerializer(RecipeSerializer):
         self.set_ingredients(recipe, ingredients)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingr_in_rec')

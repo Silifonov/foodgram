@@ -59,7 +59,9 @@ class CustomUserViewSet(UserViewSet):
             subscribed, created = Subscriptions.objects.get_or_create(
                 user=user, author=author)
             if not created:
-                return Response(status=status.HTTP_409_CONFLICT)
+                return Response(
+                    {'error': 'Уже подписаны'},
+                    status=status.HTTP_409_CONFLICT)
             serializer = self.get_serializer(author)
             return Response(serializer.data)
 
@@ -113,7 +115,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         interesting_recipe, created = Model.objects.get_or_create(
             user=user, recipe=recipe)
         if not created:
-            return Response(status=status.HTTP_409_CONFLICT)
+            return Response(
+                {'error': 'Рецепт уже добавлен'},
+                status=status.HTTP_409_CONFLICT)
         serializer = self.get_serializer(recipe)
         return Response(serializer.data)
 
