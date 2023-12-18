@@ -8,7 +8,7 @@ Python, Django, Django Rest Framework, Docker, Gunicorn, NGINX, PostgreSQL
 ## Запуск проекта на локальной машине:
 * Клонировать репозиторий:
 ```
-git clone https://github.com/silifonov/foodgram-project-react.git
+git clone https://github.com/silifonov/foodgram.git
 ```
 * В директории infra создать файл *.env* и заполнить своими данными по аналогии с *.env.example*
 * Создать и запустить контейнеры Docker, последовательно выполнить команды по созданию миграций, сбору статики, созданию суперпользователя.
